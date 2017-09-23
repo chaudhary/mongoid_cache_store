@@ -1,8 +1,6 @@
 # MongoidCacheStore
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/mongoid_cache_store`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+MongoidCacheStore helps in reducing the number of queries to the database.
 
 ## Installation
 
@@ -21,8 +19,29 @@ Or install it yourself as:
     $ gem install mongoid_cache_store
 
 ## Usage
+For ex:
+```ruby
+class User
+  include Mongoid::Document
+  belongs_to :image, class_name: UserImage, inverse_of: nil
+  # other user fields goes here
+end
 
-TODO: Write usage instructions here
+class UserImage
+  include Mongoid::Document
+
+  # image field goes here
+end
+```
+
+Now, in order to display list of users on a listing page, we need data for users including their image url.
+Accessing image method again & again will increase number of queries.
+
+```ruby
+cache_store = CacheStore.new.cache_docs(user_ids, User, [{field_name: 'image_id', klass: UserImage}])
+user = cache_store.document(user_id, User)
+user_image = cache_store.document(user.image_id, UserImage)
+```
 
 ## Development
 
