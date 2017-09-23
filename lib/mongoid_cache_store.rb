@@ -1,7 +1,9 @@
 require "mongoid_cache_store/version"
 
-class MongoidCacheStore
+module MongoidCacheStore
+end
 
+class CacheStore
   def initialize
     @doc_ids_hash = {}
     @related_docs_hash = {}
