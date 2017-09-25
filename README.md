@@ -43,6 +43,18 @@ user = cache_store.document(user_id, User)
 user_image = cache_store.document(user.image_id, UserImage)
 ```
 
+To fetch all documents of a particular klass cached.
+```ruby
+cache_store = CacheStore.new.cache_docs(user_ids, User, [{field_name: 'image_id', klass: UserImage}])
+users = cache_store.sorted_documents(User)
+```
+
+To fetch list of documents for a list of ids ordered as per ids list.
+```ruby
+cache_store = CacheStore.new.cache_docs(user_ids, User, [{field_name: 'image_id', klass: UserImage}])
+users = cache_store.sorted_documents(User, cusrom_user_ids)
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
