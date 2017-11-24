@@ -4,6 +4,7 @@ module MongoidCacheStore
 end
 
 class CacheStore
+
   def initialize
     @doc_ids_hash = {}
     @related_docs_hash = {}
@@ -12,7 +13,7 @@ class CacheStore
 
 #  [{field_name: 'image_id', klass: Users::ProfileImage}]
   def cache_docs(doc_ids, doc_class, related_infos = [])
-    doc_type = doc_class.model_name.underscore
+    doc_type = doc_class.to_s.underscore
     @doc_ids_hash[doc_type] ||= {}
     [doc_ids].flatten.compact.uniq.each{|doc_id| @doc_ids_hash[doc_type][doc_id.to_s] = nil}
     @related_docs_hash[doc_type] ||= []
@@ -23,22 +24,21 @@ class CacheStore
 
   def document(doc_id, doc_class)
     return nil if doc_id.blank?
-    doc_type = doc_class.model_name.underscore
-    ensure_query(doc_class, doc_id.to_s.to_a)
+    doc_type = doc_class.to_s.underscore
+    ensure_query(doc_class, doc_id)
 
     @documents[doc_type][doc_id.to_s]
   end
 
   def valid_doc_ids(doc_class, doc_ids = nil)
-    doc_type = doc_class.model_name.underscore
-    ensure_query(doc_class, doc_ids.map(&:to_s))
+    doc_type = doc_class.to_s.underscore
+    ensure_query(doc_class, doc_ids)
 
     doc_ids.blank? ? cached_ids(doc_type) : doc_ids.select{|doc_id| @documents[doc_type][doc_id.to_s].present?}
   end
 
   def sorted_documents(doc_class, doc_ids = nil)
-    doc_type = doc_class.model_name.underscore
-    doc_ids = doc_ids.map(&:to_s) if doc_ids != nil
+    doc_type = doc_class.to_s.underscore
     ensure_query(doc_class, doc_ids)
     return [] if @documents[doc_type].blank?
 
@@ -56,7 +56,8 @@ class CacheStore
 
   # ensure that there are no missing docs for doc_class
   def ensure_query(doc_class, doc_ids)
-    doc_type = doc_class.model_name.underscore
+    doc_ids = [doc_ids].flatten.uniq.map(&:to_s)
+    doc_type = doc_class.to_s.underscore
 
     if doc_ids.present? && (@doc_ids_hash[doc_type].blank? || doc_ids.reject{|doc_id| @doc_ids_hash[doc_type].has_key?(doc_id.to_s)}.present?)
       cache_docs(doc_ids, doc_class)
